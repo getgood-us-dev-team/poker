@@ -6,6 +6,8 @@ mod main_menu;
 use main_menu::{MainMenuPlugin};
 mod settings;
 use settings::{SettingsPlugin};
+mod background_animation;
+use background_animation::BackgroundAnimationPlugin;
 
 
 
@@ -30,7 +32,7 @@ fn main() {
         ..Default::default() 
     }))
     .init_state::<GameState>()
-    .add_plugins((AssetsPlugin, MainMenuPlugin, SettingsPlugin))
+    .add_plugins((AssetsPlugin, MainMenuPlugin, SettingsPlugin, BackgroundAnimationPlugin))
     .add_systems(Startup, setup)
     .add_systems(Update, (game_loop).run_if(in_state(GameState::Game)))
     .run();
@@ -39,7 +41,12 @@ fn main() {
 
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2d);
+    // Add 3D camera
+    commands.spawn(Camera3dBundle {
+        transform: Transform::from_xyz(0.0, 0.0, 1000.0)
+            .looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
 }
 
 
