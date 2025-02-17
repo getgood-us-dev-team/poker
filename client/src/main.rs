@@ -1,14 +1,15 @@
 use bevy::prelude::*;
 use bevy::window::{WindowMode, PresentMode, MonitorSelection};
 mod assets;
-use assets::{ AssetsPlugin, GameState};
+use assets::{ AssetsPlugin, GameState, Game};
 mod main_menu;
 use main_menu::{MainMenuPlugin};
 mod settings;
 use settings::{SettingsPlugin};
 mod background_animation;
 use background_animation::BackgroundAnimationPlugin;
-
+mod deck;
+use deck::{Deck, Card};
 
 
 // Poker game written in Rust using Bevy
@@ -32,6 +33,7 @@ fn main() {
         ..Default::default() 
     }))
     .init_state::<GameState>()
+    .init_state::<Game>()
     .add_plugins((AssetsPlugin, MainMenuPlugin, SettingsPlugin, BackgroundAnimationPlugin))
     .add_systems(Startup, setup)
     .add_systems(Update, (game_loop).run_if(in_state(GameState::Game)))
@@ -41,12 +43,7 @@ fn main() {
 
 
 fn setup(mut commands: Commands) {
-    // Add 3D camera
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 0.0, 1000.0)
-            .looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
+    commands.spawn((Camera3d::default(), Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y)));
 }
 
 

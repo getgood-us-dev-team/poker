@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::assets::{GameAssets, GameState};
+use crate::assets::{GameAssets, GameState, Game};
 
 // Add distinct colors for each button
 const PLAY_BUTTON: Color = Color::srgb(0.15, 0.45, 0.15);
@@ -23,7 +23,7 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(GameState::MainMenu), main_menu)
+            .add_systems(OnEnter(GameState::MainMenu), main_menu.run_if(in_state(Game::Loaded)))
             .add_systems(Update, update_button_colors.run_if(in_state(GameState::MainMenu)))
             .add_systems(OnExit(GameState::MainMenu), cleanup_menu);
     }
