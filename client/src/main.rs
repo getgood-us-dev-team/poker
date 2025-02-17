@@ -10,7 +10,9 @@ mod background_animation;
 use background_animation::BackgroundAnimationPlugin;
 mod deck;
 use deck::{Deck, Card};
-
+mod game;       
+use game::GamePlugin;
+use bevy_simple_text_input::*;
 
 // Poker game written in Rust using Bevy
 // This is the main file that will be used to run the game
@@ -34,9 +36,9 @@ fn main() {
     }))
     .init_state::<GameState>()
     .init_state::<Game>()
-    .add_plugins((AssetsPlugin, MainMenuPlugin, SettingsPlugin, BackgroundAnimationPlugin))
+    .add_plugins((TextInputPlugin))
+    .add_plugins((AssetsPlugin, MainMenuPlugin, SettingsPlugin, BackgroundAnimationPlugin, GamePlugin))
     .add_systems(Startup, setup)
-    .add_systems(Update, (game_loop).run_if(in_state(GameState::Game)))
     .run();
 }
 
@@ -46,7 +48,3 @@ fn setup(mut commands: Commands) {
     commands.spawn((Camera3d::default(), Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y)));
 }
 
-
-fn game_loop() {
-    println!("Game Loop");
-}

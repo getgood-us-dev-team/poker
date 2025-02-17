@@ -11,14 +11,14 @@ const CARD_DEPTH: f32 = 2.0;
 // Animation constants
 const BACKGROUND_CARD_SPEED: f32 = 100.0;
 const FEATURED_CARD_ROTATION_SPEED: f32 = 0.5;
-const MAX_BACKGROUND_CARDS: usize = 20;
+const MAX_BACKGROUND_CARDS: usize = 40;
 const BACKGROUND_CARD_SCALE: f32 = 70.0;
 
 #[derive(Component)]
 struct FeaturedCard;
 
 #[derive(Component)]
-struct BackgroundCard {
+pub struct BackgroundCard {
     speed: f32,
     rotation_speed: Vec3,
 }
@@ -111,7 +111,7 @@ fn animate_background_cards(
         transform.rotate_z(card.rotation_speed.z * time.delta_secs());
 
         // Despawn cards that have moved off screen
-        if transform.translation.x > 600.0 {
+        if transform.translation.x > 100.0 {
             commands.entity(entity).despawn_recursive();
         }
     }
