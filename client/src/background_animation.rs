@@ -29,9 +29,7 @@ impl Plugin for BackgroundAnimationPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(Game::Loaded), setup_background)
-            .add_systems(Update, animate_featured_card.run_if(in_state(Game::Loaded)))
-            .add_systems(Update, animate_background_cards.run_if(in_state(Game::Loaded)))
-            .add_systems(Update, spawn_background_cards.run_if(in_state(Game::Loaded)));
+            .add_systems(Update, (animate_featured_card, animate_background_cards, spawn_background_cards).run_if(in_state(Game::Loaded))
     }
 }
 
