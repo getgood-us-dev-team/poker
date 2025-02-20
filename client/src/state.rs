@@ -8,3 +8,4 @@ enum GameState {
     Settings,
     Game,
 }
+
