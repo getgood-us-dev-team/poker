@@ -1,15 +1,22 @@
+use bevy::ecs::component;
 use bevy::prelude::*;
-use crate::
+use crate::GameState;
+use crate::GameAssets;
+use crate::ButtonAction;
+use bevy::window::WindowResolution;
+use crate::button_manager::{spawn_button, ButtonAssets};
+use std::sync::Arc;
 
-struct SettingsPlugin;
+pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App){
         app
-        .add_systems(OnExit(GameState), cleanup_settings)
+        .add_systems(OnExit(GameState::Settings), cleanup_settings);
     }
 }
 
+#[derive(Component)]
 struct SettingsContainer;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.2, 0.2, 0.2);
@@ -58,35 +65,20 @@ fn setup_settings(
             "Resolution",
             Val::Px(50.0),
             vec!["2560x1440", "1920x1080", "1600x900", "1366x768", "1280x720"],
-            |resolution| { ButtonAction::ChangeResolution(
-            |Query<&mut Window>|{
-                let res = resolution.split_once('x').unwrap();
-                let width = res.0.parse::<f32>().unwrap();
-                let height = res.1.parse::<f32>().unwrap();
-                if let Ok(mut window) = windows.get_single_mut() {
-                    window.resolution = WindowResolution::new(width, height);
-                }
-            })},
+            move|resolution: &str| {
+                let resolution = Arc::new(resolution.to_string());
+                ButtonAction::ChangeWindow(Arc::new(move |windows: &mut Query<&mut Window>| {
+                    let res = resolution.split_once('x').unwrap();
+                    let width = res.0.parse::<f32>().unwrap();
+                    let height = res.1.parse::<f32>().unwrap();
+                    if let Ok(mut window) = windows.get_single_mut() {
+                        window.resolution = WindowResolution::new(width, height);
+                    }
+                }))
+            }
         );
 
-        setup_setting_section(
-            parent,
-            game_assets.font.clone(),
-            "Fullscreen",
-            Val::Px(60.),
-            vec!["On", "Off"],
-            |fullscreen| { ButtonAction::ChangeFullscreen(
-                |Query<&mut Window>|{
-                    if let Ok(mut window) = windows.get_single_mut(){
-                        window.mode = match fullscreen{
-                            "On" => WindowMode::Fullscreen(MonitorSelection::Primary),
-                            "Off" => WindowMode::Windowed,
-                            _ => panic!("Invalid fullscreen option"),
-                        };
-                    }
-                }
-            )},
-        );
+       
         
     });
 }
@@ -102,7 +94,7 @@ fn setup_setting_section(
     parent.spawn((
         Text::new(title),
         TextFont {
-            font,
+            font: font.clone(),
             font_size: 30.0,
             ..Default::default()
         },

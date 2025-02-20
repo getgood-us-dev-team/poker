@@ -9,6 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 bevy = { version = "0.15.2", features = ["jpeg", "png"] }
+bevy_framepace = "0.18.1"
 bevy_simple_text_input = "0.10.2"
 cards = "1.1.2"
 pokereval = "0.1.2"

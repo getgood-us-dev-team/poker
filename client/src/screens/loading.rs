@@ -1,6 +1,9 @@
 use bevy::prelude::*;
+use crate::GameState;
+use crate::GameAssets;
+use crate::asset_loader::amount_loaded;
 
-struct LoadingScreenPlugin;
+pub struct LoadingScreenPlugin;
 
 impl Plugin for LoadingScreenPlugin {
     fn build(&self, app: &mut App){
@@ -10,6 +13,7 @@ impl Plugin for LoadingScreenPlugin {
     }
 }
 
+#[derive(Component)]
 struct LoadingText;
 
 fn setup_loading_screen(
@@ -32,7 +36,7 @@ fn setup_loading_screen(
             },
             TextColor(Color::WHITE.into()),
             LoadingText,
-        ))
+        ));
     });
 }
 
@@ -44,7 +48,7 @@ fn update_loading_screen(
 ){
     let (loaded, total) = amount_loaded(asset, game_assets);
     if loaded == total {
-        *game_state.set(GameState::MainMenu);
+        game_state.set(GameState::MainMenu);
     }
     for mut text in text.iter_mut(){
         text.0 = format!("Loading... {}/{}", loaded, total);

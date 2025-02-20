@@ -8,7 +8,7 @@ mod deck;
 mod state;
 pub use state::GameState;
 mod asset_loader;
-pub use asset_loader::AssetLoaderPlugin;
+pub use asset_loader::{AssetLoaderPlugin, GameAssets};
 mod screens;
 pub use screens::ScreenPlugin;
 mod button_manager;

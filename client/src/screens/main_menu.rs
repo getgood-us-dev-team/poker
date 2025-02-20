@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use crate::button_manager::{ButtonAssets, spawn_button, ButtonAction};
+use crate::GameState;
+use crate::GameAssets;
+use std::sync::Arc;
 
-struct MainMenuPlugin;
+pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App){
@@ -10,6 +13,7 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
+#[derive(Component)]
 struct MainMenuContainer;
 
 const PLAY_BUTTON: Color = Color::srgb(0.15, 0.45, 0.15);
@@ -66,8 +70,9 @@ fn spawn_main_menu_buttons(
             hovered: HOVERED_BUTTON,
             pressed: PRESSED_BUTTON,
             on_click: ButtonAction::ChangeState(
-                |state: ResMut<NextState<GameState>>| 
-                {state.set(GameState::Game)} 
+                Arc::new(move |state| {
+                    state.set(GameState::Game)
+                })
             ),
         },
     );
@@ -81,8 +86,9 @@ fn spawn_main_menu_buttons(
             hovered: HOVERED_BUTTON,
             pressed: PRESSED_BUTTON,
             on_click: ButtonAction::ChangeState(
-                |state: ResMut<NextState<GameState>>| 
-                {state.set(GameState::Settings)} 
+                Arc::new(move |state| {
+                    state.set(GameState::Settings)
+                })
             ),
         },
     );
@@ -97,9 +103,9 @@ fn spawn_main_menu_buttons(
             hovered: HOVERED_BUTTON,
             pressed: PRESSED_BUTTON,
             on_click: ButtonAction::Other(
-                || {
+                Arc::new(move || {
                     std::process::exit(0);
-                }
+                })
             ),
         },
     );  

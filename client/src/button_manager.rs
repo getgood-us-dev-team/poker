@@ -1,40 +1,46 @@
 use bevy::prelude::*;
 use crate::CardServer;
+use crate::GameState;
+use bevy_framepace::FramepaceSettings;
+use std::sync::Arc;
 
-struct ButtonManagerPlugin;
+pub struct ButtonManagerPlugin;
 
 impl Plugin for ButtonManagerPlugin {
     fn build(&self, app: &mut App){
-        app.add_systems(Update, update_buttons)
+        app.add_systems(Update, update_buttons);
     }
 }
 
+
+#[derive(Resource, Clone)]
 pub enum ButtonAction {
-    ChangeState(fn(ResMut<NextState<GameState>>) -> ()),
-    ChangeWindow(fn(Query<&mut Window>) -> ()),
-    ChangeFPS(fn(ResMut<FramespaceSettings>) -> ()),
-    CreateRequest(fn(ResMut<CardServer>) -> ()),
-    Other(fn() -> ()),
+    ChangeState(Arc<dyn Fn(&mut ResMut<NextState<GameState>>) + Send + Sync>),
+    ChangeWindow(Arc<dyn Fn(&mut Query<&mut Window>) + Send + Sync>),
+    ChangeFPS(Arc<dyn Fn(&mut ResMut<FramepaceSettings>) + Send + Sync>),
+    CreateRequest(Arc<dyn Fn(&mut ResMut<CardServer>) + Send + Sync>),
+    Other(Arc<dyn Fn() + Send + Sync>),
 }
 
 impl ButtonAction {
-   fn execute(
+    fn execute(
         &self,
-        game_state: ResMut<NextState<GameState>>,
-        window_query: Query<&mut Window>,
-        framespace_settings: ResMut<FramespaceSettings>,
-        card_server: ResMut<CardServer>
-    ){
-       match self {
-           ButtonAction::ChangeState(f) => f(game_state),
-           ButtonAction::ChangeWindow(f) => f(window_query),
-           ButtonAction::ChangeFPS(f) => f(framespace_settings),
-           ButtonAction::CreateRequest(f) => f(card_server),
-           ButtonAction::Other(f) => f(),
-       }
-   }
+        game_state: &mut ResMut<NextState<GameState>>,
+        window_query: &mut Query<&mut Window>,
+        framespace_settings: &mut ResMut<FramepaceSettings>,
+        card_server: &mut ResMut<CardServer>,
+    ) {
+        match self {
+            ButtonAction::ChangeState(f) => f(game_state),
+            ButtonAction::ChangeWindow(f) => f(window_query),
+            ButtonAction::ChangeFPS(f) => f(framespace_settings),
+            ButtonAction::CreateRequest(f) => f(card_server),
+            ButtonAction::Other(f) => f(),
+        }
+    }
 }
 
+#[derive(Component)]
 pub struct ButtonAssets {
     pub normal: Color,
     pub hovered: Color,
@@ -75,52 +81,35 @@ pub fn spawn_button(
             ..Default::default()
         },
         TextColor(Color::WHITE.into()),
-    ))
+    ));
 }
 
 fn update_buttons(
-    commands: &mut Commands,
     mut game_state: ResMut<NextState<GameState>>,
-    mut framespace_settings: ResMut<FramespaceSettings>,
+    mut framespace_settings: ResMut<FramepaceSettings>,
     mut card_server: ResMut<CardServer>,
     mut window_query: Query<&mut Window>,
-    interaction_query: Query<(
+    mut interaction_query: Query<(
         &Interaction,
         &mut BackgroundColor,
         &mut BorderColor,
         &ButtonAssets
     ), (Changed<Interaction>, With<Button>)>,
-){
+) {
     for (interaction, mut background_color, mut border_color, button_assets) in interaction_query.iter_mut(){
         match *interaction{
-            Interaction::Clicked => {
-                background_color = button_assets.pressed.into();
-                border_color = button_assets.pressed.into();
-                match button_assets.on_click{
-                    ButtonAction::ChangeState(_) => {
-                        (button_assets.on_click)(game_state);
-                    }
-                    ButtonAction::ChangeWindow(mut window_query) => {
-                        
-                    }
-                    ButtonAction::ChangeFPS(mut framespace_settings) => {
-                        framespace_settings.fps = 60;
-                    }
-                    ButtonAction::CreateRequest(mut card_server) => {
-                        card_server.create_request();
-                    }
-                    ButtonAction::Other() => {
-                        println!("Other button action");
-                    }
-                }
+            Interaction::Pressed => {
+                *background_color = BackgroundColor(button_assets.pressed);
+                *border_color = BorderColor(button_assets.pressed);
+                button_assets.on_click.execute(&mut game_state, &mut window_query, &mut framespace_settings, &mut card_server);
             }
             Interaction::Hovered => {
-                background_color = button_assets.hovered.into();
-                border_color = button_assets.hovered.into();
+                *background_color = BackgroundColor(button_assets.hovered);
+                *border_color = BorderColor(button_assets.hovered);
             }
             Interaction::None => {
-                background_color = button_assets.normal.into();
-                border_color = button_assets.normal.into();
+                *background_color = BackgroundColor(button_assets.normal);
+                *border_color = BorderColor(button_assets.normal);
             }
         }
     }

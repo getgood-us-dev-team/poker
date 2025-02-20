@@ -1,16 +1,17 @@
 use bevy::prelude::*;
-use deck::Deck;
+use crate::deck::Deck;
 
-struct AssetLoaderPlugin;
+pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App){
         app.init_resource::<GameAssets>()
-            .add_systems(PreStartup, load_assets)
+            .add_systems(PreStartup, load_assets);
     }
 }
 
-struct GameAssets {
+#[derive(Resource)]
+pub struct GameAssets {
     pub font: Handle<Font>,
     pub deck: Deck,
 

@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, Copy, Default, Eq, PartialEq, Hash, Resource)]
-enum GameState {
+pub enum GameState {
     #[default]
-    Loading
+    Loading,
     MainMenu,
     Settings,
     Game,
