@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::button_manager::{ButtonAssets, spawn_button};
+use crate::button_manager::{ButtonAssets, spawn_button, ButtonAction};
 
 struct MainMenuPlugin;
 
@@ -65,9 +65,10 @@ fn spawn_main_menu_buttons(
             normal: PLAY_BUTTON,
             hovered: HOVERED_BUTTON,
             pressed: PRESSED_BUTTON,
-            on_click: |mut next_state: ResMut<NextState<GameState>>| {
-                *next_state = GameState::Playing;
-            },
+            on_click: ButtonAction::ChangeState(
+                |state: ResMut<NextState<GameState>>| 
+                {state.set(GameState::Game)} 
+            ),
         },
     );
     spawn_button(
@@ -79,9 +80,10 @@ fn spawn_main_menu_buttons(
             normal: SETTINGS_BUTTON,
             hovered: HOVERED_BUTTON,
             pressed: PRESSED_BUTTON,
-            on_click: |mut next_state: ResMut<NextState<GameState>>| {
-                *next_state = GameState::Settings;
-            },
+            on_click: ButtonAction::ChangeState(
+                |state: ResMut<NextState<GameState>>| 
+                {state.set(GameState::Settings)} 
+            ),
         },
     );
     #[cfg(not(target_arch = "wasm32"))]
@@ -94,9 +96,11 @@ fn spawn_main_menu_buttons(
             normal: QUIT_BUTTON,
             hovered: HOVERED_BUTTON,
             pressed: PRESSED_BUTTON,
-            on_click: |mut next_state: ResMut<NextState<GameState>>| {
-                std::process::exit(0);
-            },
+            on_click: ButtonAction::Other(
+                || {
+                    std::process::exit(0);
+                }
+            ),
         },
     );  
 }

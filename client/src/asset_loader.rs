@@ -6,6 +6,7 @@ struct AssetLoaderPlugin;
 impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App){
         app.init_resource::<GameAssets>()
+            .add_systems(PreStartup, load_assets)
     }
 }
 
