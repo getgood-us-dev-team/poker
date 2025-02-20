@@ -1,19 +1,18 @@
 use bevy::prelude::*;
 use bevy::window::{WindowMode, PresentMode, MonitorSelection};
-mod assets;
-use assets::{ AssetsPlugin, GameState, Game};
-mod main_menu;
-use main_menu::{MainMenuPlugin};
-mod settings;
-use settings::{SettingsPlugin};
-mod background_animation;
-use background_animation::BackgroundAnimationPlugin;
-mod deck;
-use deck::{Deck, Card};
-mod game;       
-use game::GamePlugin;
 use bevy_simple_text_input::*;
 
+pub const GAME_NAME: &str = "Poker Game";
+
+mod deck;
+mod state;
+use state::GameState;
+mod asset_loader;
+use asset_loader::AssetLoaderPlugin;
+mod screens;
+use screens::ScreenPlugin;
+mod button_manager;
+use button_manager::ButtonManagerPlugin;
 // Poker game written in Rust using Bevy
 // This is the main file that will be used to run the game
 // It will handle the game loop and the main menu
@@ -24,7 +23,7 @@ fn main() {
     .insert_resource(ClearColor(Color::BLACK))
     .add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
-            title: "Poker Game".to_string(),
+            title: GAME_NAME.to_string(),
             resolution: (1920.0, 1080.0).into(),
             //mode: WindowMode::Fullscreen(MonitorSelection::Primary),
             present_mode: PresentMode::AutoVsync,
@@ -35,9 +34,8 @@ fn main() {
         ..Default::default() 
     }))
     .init_state::<GameState>()
-    .init_state::<Game>()
     .add_plugins((TextInputPlugin))
-    .add_plugins((AssetsPlugin, MainMenuPlugin, SettingsPlugin, BackgroundAnimationPlugin, GamePlugin))
+    .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin))
     .add_systems(Startup, setup)
     .run();
 }
