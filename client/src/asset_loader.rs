@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::deck::Deck;
+use crate::Deck;
 
 pub struct AssetLoaderPlugin;
 
@@ -33,11 +33,18 @@ fn load_assets(
     game_assets.font = asset.load("font1.ttf");
 
     let mut cards: Vec<Handle<Scene>> = Vec::new();
+    /*
     for i in ["spade", "club", "heart", "diamond"]{
         for j in 1..=13 {
             let card = asset.load(format!("{}{}.glb", i, j));
             cards.push(card);
         }
+    }
+    */
+    // For now, I only have 2 cards, the ace of spades and the 2 of spades
+    // fills the array all the way to 52 cards using only these 2 cards
+    for i in 0..52 {
+        cards.push(asset.load(format!("{}{}.glb#Scene0", "spade", i%2+1)));
     }
 
     game_assets.deck = Deck::new(cards); 
@@ -49,10 +56,10 @@ pub fn amount_loaded(
 ) -> (i32, i32){
     let mut loaded = 0;
     let mut total = 0;
-    if !asset.is_loaded_with_dependencies(&game_assets.font){
+    if asset.is_loaded_with_dependencies(&game_assets.font){
         loaded += 1;
-        total += 1;
     }
+    total += 1;
 
     for card in game_assets.deck.cards.iter(){
         total += 1;

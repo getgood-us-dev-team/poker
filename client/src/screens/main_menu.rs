@@ -3,6 +3,7 @@ use crate::button_manager::{ButtonAssets, spawn_button, ButtonAction};
 use crate::GameState;
 use crate::GameAssets;
 use std::sync::Arc;
+use crate::ButtonPosition;
 
 pub struct MainMenuPlugin;
 
@@ -21,6 +22,13 @@ const SETTINGS_BUTTON: Color = Color::srgb(0.15, 0.15, 0.45);
 const QUIT_BUTTON: Color = Color::srgb(0.45, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
+const TITLE_FONT_SIZE: f32 = 50.0;
+const BUTTON_FONT_SIZE: f32 = 30.0;
+const BUTTON_HEIGHT: f32 = 65.0;
+const BUTTON_INCREMENT: f32 = 100.0;
+const TITLE_TOP: Val = Val::Percent(5.0);
+const TITLE_LEFT: Val = Val::Percent(5.0);
+const HEIGHT_FROM_TOP: f32 = 160.0;
 
 fn setup_main_menu(
     mut commands: Commands,
@@ -29,8 +37,8 @@ fn setup_main_menu(
     commands.spawn((
         Node{
             position_type: PositionType::Absolute,
-            top: Val::Percent(5.),
-            left: Val::Percent(5.),
+            top: TITLE_TOP,
+            left: TITLE_LEFT,
             ..Default::default()
         },
         MainMenuContainer,
@@ -39,7 +47,7 @@ fn setup_main_menu(
             Text::new(crate::GAME_NAME),
             TextFont {
                 font: game_assets.font.clone(),
-                font_size: 40.0,
+                font_size: TITLE_FONT_SIZE,
                 ..Default::default()
             },
             TextColor(Color::WHITE.into()),
@@ -51,7 +59,7 @@ fn setup_main_menu(
                 ..Default::default()
             }
         ));
-        
+        spawn_main_menu_buttons(parent, game_assets);
     });
 }
 
@@ -60,11 +68,19 @@ fn spawn_main_menu_buttons(
     parent: &mut ChildBuilder,
     game_assets: Res<GameAssets>,
 ){
+    let mut button_height = HEIGHT_FROM_TOP;
+    let increment = BUTTON_INCREMENT;
     spawn_button(
         parent,
-        Val::Px(100.),
         "Play",
         game_assets.font.clone(),
+        ButtonPosition {
+            top: Val::Px(button_height),
+            left: Val::Px(0.),
+            height: Val::Px(BUTTON_HEIGHT),
+            font_size: BUTTON_FONT_SIZE,
+            ..Default::default()
+        },
         ButtonAssets {
             normal: PLAY_BUTTON,
             hovered: HOVERED_BUTTON,
@@ -76,11 +92,18 @@ fn spawn_main_menu_buttons(
             ),
         },
     );
+    button_height += increment;
     spawn_button(
         parent,
-        Val::Px(200.),
         "Settings",
         game_assets.font.clone(),
+        ButtonPosition {
+            top: Val::Px(button_height),
+            left: Val::Px(0.),
+            height: Val::Px(BUTTON_HEIGHT),
+            font_size: BUTTON_FONT_SIZE,
+            ..Default::default()
+        },
         ButtonAssets {
             normal: SETTINGS_BUTTON,
             hovered: HOVERED_BUTTON,
@@ -92,15 +115,22 @@ fn spawn_main_menu_buttons(
             ),
         },
     );
+    button_height += increment;
     #[cfg(not(target_arch = "wasm32"))]
     spawn_button(
         parent,
-        Val::Px(300.),
         "Quit",
         game_assets.font.clone(),
+        ButtonPosition {
+            top: Val::Px(button_height),
+            left: Val::Px(0.),
+            height: Val::Px(BUTTON_HEIGHT),
+            font_size: BUTTON_FONT_SIZE,
+            ..Default::default()
+        },
         ButtonAssets {
             normal: QUIT_BUTTON,
-            hovered: HOVERED_BUTTON,
+            hovered: HOVERED_BUTTON,    
             pressed: PRESSED_BUTTON,
             on_click: ButtonAction::Other(
                 Arc::new(move || {

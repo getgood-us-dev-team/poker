@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 use bevy::window::{WindowMode, PresentMode, MonitorSelection};
 use bevy_simple_text_input::*;
+use bevy_framepace::{FramepacePlugin, Limiter, FramepaceSettings};
 
 pub const GAME_NAME: &str = "Jack of Diamonds";
 
-mod deck;
+
 mod state;
 pub use state::GameState;
 mod asset_loader;
@@ -12,9 +13,11 @@ pub use asset_loader::{AssetLoaderPlugin, GameAssets};
 mod screens;
 pub use screens::ScreenPlugin;
 mod button_manager;
-pub use button_manager::{ButtonManagerPlugin, ButtonAction};
-mod server;
-pub use server::CardServer;
+pub use button_manager::{ButtonManagerPlugin, ButtonAction, ButtonPosition};
+mod utils;
+pub use utils::*;
+mod animations;
+pub use animations::GameAnimationPlugin;
 /*
     Poker game written in Rust using Bevy
     This is the main file that will be used to run the game
@@ -29,7 +32,7 @@ fn main() {
         primary_window: Some(Window {
             title: GAME_NAME.to_string(),
             resolution: (1920.0, 1080.0).into(),
-            //mode: WindowMode::Fullscreen(MonitorSelection::Primary),
+            //mode: WindowMode::SizedFullscreen(MonitorSelection::Primary),
             present_mode: PresentMode::AutoVsync,
             ..Default::default()
         }),
@@ -38,15 +41,28 @@ fn main() {
         ..Default::default() 
     }))
     .init_state::<GameState>()
-    .add_plugins((TextInputPlugin))
-    .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin))
+    .init_resource::<GameAssets>()
+    .add_plugins((TextInputPlugin, FramepacePlugin))
+    .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin, GameAnimationPlugin))
     .add_systems(Startup, setup)
     .run();
 }
 
 
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, mut framespace_settings: ResMut<FramepaceSettings>,) {
     commands.spawn((Camera3d::default(), Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y)));
+    
+    commands.insert_resource(CardServer::new_empty());
+
+    framespace_settings.limiter = Limiter::from_framerate(60.0);
+
+    commands.spawn((PointLight {
+        intensity: 10000.0,
+        color: Color::WHITE,
+        ..default()
+    },
+    Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
 }
 

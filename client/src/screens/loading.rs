@@ -22,8 +22,8 @@ fn setup_loading_screen(
 ){
     commands.spawn((Node {
         position_type: PositionType::Absolute,
-        top: Val::Px(0.0),
-        left: Val::Px(0.0),
+        top: Val::Auto,
+        left: Val::Auto,
         ..Default::default()
     }))
     .with_children(|parent|{
@@ -36,6 +36,7 @@ fn setup_loading_screen(
             },
             TextColor(Color::WHITE.into()),
             LoadingText,
+            TextLayout::new(JustifyText::Center, LineBreak::WordBoundary),
         ));
     });
 }
@@ -45,13 +46,14 @@ fn update_loading_screen(
     mut text: Query<&mut Text, With<LoadingText>>,
     game_assets: Res<GameAssets>,
     mut game_state: ResMut<NextState<GameState>>,
+    time: Res<Time>,
 ){
     let (loaded, total) = amount_loaded(asset, game_assets);
     if loaded == total {
         game_state.set(GameState::MainMenu);
     }
     for mut text in text.iter_mut(){
-        text.0 = format!("Loading... {}/{}", loaded, total);
+        text.0 = format!("Loading... {}%", (loaded as f32 / total as f32 * 100.0) as i32);
     }
 }
 

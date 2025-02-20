@@ -49,21 +49,41 @@ pub struct ButtonAssets {
     pub on_click: ButtonAction,
 }
 
+pub struct ButtonPosition {
+    pub top: Val,
+    pub left: Val,
+    pub width: Val,
+    pub height: Val,
+    pub font_size: f32,
+}
+
+impl Default for ButtonPosition {
+    fn default() -> Self {
+        ButtonPosition {
+            top: Val::Px(0.0),
+            left: Val::Px(0.0),
+            width: Val::Px(200.0),
+            height: Val::Px(65.0),
+            font_size: 30.0,
+        }
+    }
+}
+
 pub fn spawn_button(
     parent: &mut ChildBuilder,
-    top: Val,
     text: &str,
     font: Handle<Font>,
+    button_position: ButtonPosition,
     button_assets: ButtonAssets,
 ){
     parent.spawn((
         Button,
         Node {
             position_type: PositionType::Absolute,
-            top,
-            left: Val::Px(0.),
-            width: Val::Px(200.0),
-            height: Val::Px(65.0),
+            top: button_position.top,
+            left: button_position.left,
+            width: button_position.width,
+            height: button_position.height,
             border: UiRect::all(Val::Px(5.0)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
@@ -71,13 +91,14 @@ pub fn spawn_button(
             ..default()
         },
         BackgroundColor(button_assets.normal.into()),
+        BorderRadius::MAX,
         BorderColor(button_assets.normal.into()),
         button_assets,
     )).with_child((
         Text::new(text),
         TextFont {
             font,
-            font_size: 30.0,
+            font_size: button_position.font_size,
             ..Default::default()
         },
         TextColor(Color::WHITE.into()),
