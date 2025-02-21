@@ -48,14 +48,14 @@ pub fn amount_loaded(
 ) -> (i32, i32){
     let mut loaded = 0;
     let mut total = 0;
-    if !asset.is_loaded_with_dependencies(&game_assets.font){
+    if asset.is_loaded_with_dependencies(&game_assets.font){
         loaded += 1;
         total += 1;
     }
 
     for card in game_assets.deck.cards.iter(){
         total += 1;
-        if !asset.is_loaded_with_dependencies(&card.model){
+        if asset.is_loaded_with_dependencies(&card.model){
             loaded += 1;
         }
     }
