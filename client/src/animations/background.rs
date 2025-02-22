@@ -57,8 +57,8 @@ fn spawn_background_cards(
     let mut rng = rand::thread_rng();
     for _ in 0..(MAX_BACKGROUND_CARDS - background_cards.iter().count()) {
         let card_index = rng.gen_range(0..game_assets.deck.cards.len());
-        let x = rng.gen_range(-30.0..30.0);
-        let y = -60.0;
+        let x = -60.0;
+        let y = rng.gen_range(-30.0..30.0);
         let z = rng.gen_range(-10.0..10.0);
         commands.spawn((
             BackgroundCard,
@@ -71,7 +71,7 @@ fn spawn_background_cards(
             AnimatedObject {
                 rotation: Vec3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0)),
                 scale: Vec3::ZERO,
-                translation: Vec3::ZERO,
+                translation: Vec3::new(rng.gen_range(-30.0..30.0)*BACKGROUND_CARD_SPEED, rng.gen_range(-1.0..1.0), 0.),
                 speed: 2.0,
             },
         ));

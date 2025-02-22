@@ -63,10 +63,10 @@ pub fn amount_loaded(
 
     for card in game_assets.deck.cards.iter(){
         total += 1;
-        if !asset.is_loaded_with_dependencies(&card.model){
+        if asset.is_loaded_with_dependencies(&card.model){
             loaded += 1;
         }
     }
 
-    return (loaded, total);
+    (loaded, total)
 }
