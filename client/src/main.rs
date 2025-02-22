@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::window::{WindowMode, PresentMode, MonitorSelection};
 use bevy_simple_text_input::*;
 use bevy_framepace::{FramepacePlugin, Limiter, FramepaceSettings};
+use std::env;
 
 pub const GAME_NAME: &str = "Jack of Diamonds";
 
@@ -26,6 +27,10 @@ pub use animations::GameAnimationPlugin;
 
 // This is the main function that will be used to run the game fr fr
 fn main() {
+    // Sets the enviroment variable for wgpu backend to use dx12
+    #[cfg(target_os = "windows")]
+    env::set_var("WGPU_BACKEND", "dx12");
+
     App::new()
     .insert_resource(ClearColor(Color::BLACK))
     .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -51,12 +56,16 @@ fn main() {
 
 
 fn setup(mut commands: Commands, mut framespace_settings: ResMut<FramepaceSettings>,) {
+    // Spawns the camera
     commands.spawn((Camera3d::default(), Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y)));
     
+    // Spawns the card server
     commands.insert_resource(CardServer::new_empty());
 
+    // Sets the framepace limiter to 60 fps
     framespace_settings.limiter = Limiter::from_framerate(60.0);
 
+    // Spawns the point light
     commands.spawn((PointLight {
         intensity: 10000.0,
         color: Color::WHITE,
