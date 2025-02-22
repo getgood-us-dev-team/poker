@@ -21,12 +21,12 @@ impl Plugin for SettingsPlugin {
 #[derive(Component)]
 struct SettingsContainer;
 
-const NORMAL_BUTTON: Color = Color::rgb(0.2, 0.2, 0.2);
-const HOVERED_BUTTON: Color = Color::rgb(0.3, 0.3, 0.3);
-const PRESSED_BUTTON: Color = Color::rgb(0.1, 0.1, 0.1);
-const BACK_BUTTON_NORMAL: Color = Color::rgb(0.4, 0.2, 0.2);
-const BACK_BUTTON_HOVERED: Color = Color::rgb(0.5, 0.3, 0.3);
-const BACK_BUTTON_PRESSED: Color = Color::rgb(0.3, 0.1, 0.1);
+const NORMAL_BUTTON: Color = Color::srgb(0.2, 0.2, 0.2);
+const HOVERED_BUTTON: Color = Color::srgb(0.3, 0.3, 0.3);
+const PRESSED_BUTTON: Color = Color::srgb(0.1, 0.1, 0.1);
+const BACK_BUTTON_NORMAL: Color = Color::srgb(0.4, 0.2, 0.2);
+const BACK_BUTTON_HOVERED: Color = Color::srgb(0.5, 0.3, 0.3);
+const BACK_BUTTON_PRESSED: Color = Color::srgb(0.3, 0.1, 0.1);
 const SETTINGS_TITLE_FONT_SIZE: f32 = 40.0;
 const SETTINGS_TITLE_TOP: f32 = 60.0;
 const BUTTON_HEIGHT: f32 = 40.0;
