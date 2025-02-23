@@ -7,12 +7,12 @@ pub struct BackgroundAnimationPlugin;
 
 impl Plugin for BackgroundAnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_feature_card)
+        app.add_systems(OnEnter(GameState::MainMenu), spawn_feature_card)
             .add_systems(Update, spawn_background_cards.run_if(
                 in_state(GameState::MainMenu)
                     .or(in_state(GameState::Settings))
             )
-        );
+        ).add_systems(OnEnter(GameState::ServerSelect), cleanup_background_cards);
     }
 }
 
@@ -95,3 +95,15 @@ fn spawn_background_cards(
     }
 }
 
+fn cleanup_background_cards(
+    mut commands: Commands,
+    background_cards: Query<Entity, With<BackgroundCard>>,
+    feature_card: Query<Entity, With<FeatureCard>>,
+) {
+    for card in background_cards.iter() {
+        commands.entity(card).despawn_recursive();
+    }
+    for card in feature_card.iter() {
+        commands.entity(card).despawn_recursive();
+    }
+}

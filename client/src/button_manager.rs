@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::GameState;
+use crate::{GameState, ServerMode};
 use bevy_framepace::FramepaceSettings;
 use std::sync::Arc;
 
@@ -19,6 +19,7 @@ pub enum ButtonAction {
     ChangeFPS(Arc<dyn Fn(&mut ResMut<FramepaceSettings>) + Send + Sync>),
     //CreateRequest(Arc<dyn Fn(&mut ResMut<CardServer>) + Send + Sync>),
     Other(Arc<dyn Fn() + Send + Sync>),
+    ChangeServerMode(Arc<dyn Fn(&mut ResMut<NextState<ServerMode>>) + Send + Sync>),
 }
 
 impl ButtonAction {
@@ -28,11 +29,13 @@ impl ButtonAction {
         window_query: &mut Query<&mut Window>,
         framespace_settings: &mut ResMut<FramepaceSettings>,
        // card_server: &mut ResMut<CardServer>,
+        server_mode: &mut ResMut<NextState<ServerMode>>,
     ) {
         match self {
             ButtonAction::ChangeState(f) => f(game_state),
             ButtonAction::ChangeWindow(f) => f(window_query),
             ButtonAction::ChangeFPS(f) => f(framespace_settings),
+            ButtonAction::ChangeServerMode(f) => f(server_mode),
             //ButtonAction::CreateRequest(f) => f(card_server),
             ButtonAction::Other(f) => f(),
         }
@@ -107,6 +110,7 @@ pub fn spawn_button(
 fn update_buttons(
     mut game_state: ResMut<NextState<GameState>>,
     mut framespace_settings: ResMut<FramepaceSettings>,
+    mut server_mode: ResMut<NextState<ServerMode>>,
     //mut card_server: ResMut<CardServer>,
     mut window_query: Query<&mut Window>,
     mut interaction_query: Query<(
@@ -121,7 +125,7 @@ fn update_buttons(
             Interaction::Pressed => {
                 *background_color = BackgroundColor(button_assets.pressed);
                 *border_color = BorderColor(button_assets.pressed);
-                button_assets.on_click.execute(&mut game_state, &mut window_query, &mut framespace_settings);
+                button_assets.on_click.execute(&mut game_state, &mut window_query, &mut framespace_settings, &mut server_mode);
             }
             Interaction::Hovered => {
                 *background_color = BackgroundColor(button_assets.hovered);

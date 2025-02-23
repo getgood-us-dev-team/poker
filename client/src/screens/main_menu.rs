@@ -89,7 +89,7 @@ fn spawn_main_menu_buttons(
             pressed: PRESSED_BUTTON,
             on_click: ButtonAction::ChangeState(
                 Arc::new(move |state| {
-                    state.set(GameState::Lobby)
+                    state.set(GameState::ServerSelect);
                 })
             ),
         },
@@ -194,7 +194,7 @@ fn input_listener(
 ) {
     for event in events.read() {
         game_assets.player_name = event.value.clone();
-        game_state.set(GameState::Lobby);
+        game_state.set(GameState::ServerSelect);
         println!("Player name: {}", game_assets.player_name);
     }
 }
