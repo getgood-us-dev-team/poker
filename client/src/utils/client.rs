@@ -29,15 +29,11 @@ pub fn create_client(mut commands: Commands, game_assets: Res<GameAssets>) {
 }
 
 pub fn send_message_system(mut client: ResMut<RenetClient>) {
-    //println!("Sending message");
-    // Send a text message to the server
     client.send_message(DefaultChannel::ReliableOrdered, "server message");
 }
 
 pub fn receive_message_system(mut client: ResMut<RenetClient>) {
-    //println!("Receiving message");
     while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered) {
-        // Handle received message
         println!("Received message from server: {:?}", message);
     }
 }

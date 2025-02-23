@@ -5,9 +5,10 @@ pub use deck::*;
 
 mod server;
 
-
 mod client;
 
+mod lobby;
+pub use lobby::*;
 
 pub struct ServerPlugin;
 
