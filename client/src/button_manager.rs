@@ -54,6 +54,8 @@ pub struct ButtonAssets {
 pub struct ButtonPosition {
     pub top: Val,
     pub left: Val,
+    pub right: Val,
+    pub bottom: Val,
     pub width: Val,
     pub height: Val,
     pub font_size: f32,
@@ -62,8 +64,10 @@ pub struct ButtonPosition {
 impl Default for ButtonPosition {
     fn default() -> Self {
         ButtonPosition {
-            top: Val::Px(0.0),
-            left: Val::Px(0.0),
+            top: Val::Auto,
+            left: Val::Auto,
+            right: Val::Auto,
+            bottom: Val::Auto,
             width: Val::Px(200.0),
             height: Val::Px(65.0),
             font_size: 30.0,
@@ -84,6 +88,8 @@ pub fn spawn_button(
             position_type: PositionType::Absolute,
             top: button_position.top,
             left: button_position.left,
+            right: button_position.right,
+            bottom: button_position.bottom,
             width: button_position.width,
             height: button_position.height,
             border: UiRect::all(Val::Px(5.0)),

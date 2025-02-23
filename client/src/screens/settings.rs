@@ -180,6 +180,7 @@ fn setup_setting_section(
                 width: Val::Px(180.0),
                 font_size: 30.0,
                 height: Val::Px(BUTTON_HEIGHT),
+                ..Default::default()
             },
             ButtonAssets {
                 normal: NORMAL_BUTTON,

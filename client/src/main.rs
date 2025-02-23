@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use bevy::window::{WindowMode, PresentMode, MonitorSelection};
+use bevy_renet::netcode::NetcodeServerPlugin;
 use bevy_simple_text_input::*;
 use bevy_framepace::{FramepacePlugin, Limiter, FramepaceSettings};
 use bevy_renet::*;
 use std::env;
+use bevy_renet::netcode::NetcodeClientPlugin;
 
 pub const GAME_NAME: &str = "Jack of Diamonds";
 
@@ -15,7 +17,7 @@ pub use asset_loader::{AssetLoaderPlugin, GameAssets};
 mod screens;
 pub use screens::ScreenPlugin;
 mod button_manager;
-pub use button_manager::{ButtonManagerPlugin, ButtonAction, ButtonPosition, ButtonAssets};
+pub use button_manager::{ButtonManagerPlugin, ButtonAction, ButtonPosition, ButtonAssets, spawn_button};
 mod utils;
 pub use utils::*;
 mod animations;
@@ -35,7 +37,7 @@ fn main() {
 
     App::new()
     .insert_resource(ClearColor(Color::BLACK))
-    .add_plugins(DefaultPlugins.set(WindowPlugin {
+    .add_plugins(DefaultPlugins.set(WindowPlugin { // Default Plugins
         primary_window: Some(Window {
             title: GAME_NAME.to_string(),
             resolution: (1920.0, 1080.0).into(),
@@ -50,8 +52,8 @@ fn main() {
     .init_state::<GameState>()
     .init_state::<ServerMode>()
     .init_resource::<GameAssets>()
-    .add_plugins((TextInputPlugin, FramepacePlugin, RenetServerPlugin, RenetClientPlugin))
-    .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin, GameAnimationPlugin))
+    .add_plugins((TextInputPlugin, FramepacePlugin, RenetServerPlugin, RenetClientPlugin, NetcodeServerPlugin, NetcodeClientPlugin)) // External Plugins
+    .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin, GameAnimationPlugin, ServerPlugin))// In-Crate Plugins
     .add_systems(Startup, setup)
     .run();
 }

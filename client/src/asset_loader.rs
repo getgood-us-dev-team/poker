@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use crate::Deck;
+use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 
 pub struct AssetLoaderPlugin;
 
@@ -15,7 +16,7 @@ pub struct GameAssets {
     pub font: Handle<Font>,
     pub deck: Deck,
     pub player_name: String,
-
+    pub server_address: SocketAddr,
 }
 
 impl Default for GameAssets {
@@ -24,6 +25,7 @@ impl Default for GameAssets {
             font: Handle::default(),
             deck: Deck::new_empty(),
             player_name: String::new(),
+            server_address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2163),
         }
     }
 }
