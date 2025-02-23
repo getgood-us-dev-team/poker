@@ -4,13 +4,15 @@ use crate::GameState;
 use crate::GameAssets;
 use std::sync::Arc;
 use crate::ButtonPosition;
+use bevy_simple_text_input::*;
 
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App){
         app.add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
-            .add_systems(OnExit(GameState::MainMenu), cleanup_menu);
+            .add_systems(Update, input_listener.after(TextInputSystem).run_if(in_state(GameState::MainMenu)))
+            .add_systems(OnExit(GameState::MainMenu), (input_grabber, cleanup_menu).chain() );        
     }
 }
 
@@ -87,11 +89,45 @@ fn spawn_main_menu_buttons(
             pressed: PRESSED_BUTTON,
             on_click: ButtonAction::ChangeState(
                 Arc::new(move |state| {
-                    state.set(GameState::Game)
+                    state.set(GameState::Lobby)
                 })
             ),
         },
     );
+    button_height += increment;
+    // Spawn textbox for username
+    parent.spawn((
+        Node{
+            position_type: PositionType::Absolute,
+            top: Val::Px(button_height),
+            left: Val::Px(0.),
+            border: UiRect::all(Val::Px(5.0)),
+            padding: UiRect::all(Val::Px(5.0)),
+            width: Val::Px(200.0),
+            height: Val::Px(BUTTON_HEIGHT),
+            ..Default::default()
+        },
+        BorderColor(PLAY_BUTTON),
+        BackgroundColor(Color::srgb(0.15, 0.15, 0.15).into()),
+        TextInput,
+        TextInputTextFont ( TextFont {
+            font: game_assets.font.clone(),
+            font_size: BUTTON_FONT_SIZE+5.0,
+            ..Default::default()
+        }),
+        TextInputPlaceholder{
+            value: "Username".to_string(),
+            text_font: Some(TextFont {
+                font: game_assets.font.clone(),
+                font_size: BUTTON_FONT_SIZE-5.0,
+                ..Default::default()
+            }),
+            text_color: Some(TextColor(Color::WHITE.into())),
+            ..Default::default()
+        },
+    ));
+
+
     button_height += increment;
     spawn_button(
         parent,
@@ -141,6 +177,27 @@ fn spawn_main_menu_buttons(
     );  
 }
 
+fn input_grabber(
+    mut game_assets: ResMut<GameAssets>,
+    text_input_query: Query<&TextInputValue, With<TextInput>>,
+) {
+    if let Ok(text_input) = text_input_query.get_single() {
+        game_assets.player_name = text_input.0.to_string();
+        println!("Player name: {}", game_assets.player_name);
+    }
+}
+
+fn input_listener(
+    mut game_assets: ResMut<GameAssets>,
+    mut events: EventReader<TextInputSubmitEvent>,
+    mut game_state: ResMut<NextState<GameState>>,
+) {
+    for event in events.read() {
+        game_assets.player_name = event.value.clone();
+        game_state.set(GameState::Lobby);
+        println!("Player name: {}", game_assets.player_name);
+    }
+}
 
 fn cleanup_menu(
     mut commands: Commands,

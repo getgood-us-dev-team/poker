@@ -6,6 +6,7 @@ pub enum GameState {
     Loading,
     MainMenu,
     Settings,
+    Lobby,
     Game,
 }
 
