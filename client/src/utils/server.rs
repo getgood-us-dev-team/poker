@@ -9,6 +9,9 @@ use renet_netcode::*;
 use std::time::SystemTime;
 use crate::asset_loader::GameAssets;
 use crate::utils::client::PROTOCOL_ID;
+use crate::utils::message::ServerMessage;
+use crate::utils::*;
+
 
 pub fn create_server(
     mut commands: Commands,
@@ -30,10 +33,13 @@ pub fn create_server(
     commands.insert_resource(transport);
 }
 
-pub fn send_message_system(mut server: ResMut<RenetServer>, mut lobby: ResMut<Lobby>, mut events: EventReader<Action>) {
+pub fn send_message_system(mut server: ResMut<RenetServer>, mut lobby: ResMut<Lobby>, mut events: EventReader<Action>, game_assets: Res<GameAssets>) {
     if lobby.is_client_turn(game_assets.client_id) {
         for action in events.read() {
-            server.broadcast_message(DefaultChannel::ReliableOrdered, ServerMessage::Action(action, game_assets.client_id).into());
+            server.broadcast_message(
+                DefaultChannel::ReliableOrdered, 
+                Into::<Bytes>::into(ServerMessage::Action(*action, game_assets.client_id))
+            );
         }
     }
 }
@@ -42,9 +48,9 @@ pub fn receive_message_system(mut server: ResMut<RenetServer>, mut lobby: ResMut
     for client_id in server.clients_id() {
         if lobby.is_client_turn(client_id) {
             while let Some(message) = server.receive_message(client_id, DefaultChannel::ReliableOrdered) {
-                let client_message = ServerMessage::from(message);
+                let client_message = ServerMessage::from(message.clone());
                 match client_message {
-                    ServerMessage::Action(action) => {
+                    ServerMessage::Action(action, _) => {
                         lobby.play_turn(action);
                     }
                     _ => {

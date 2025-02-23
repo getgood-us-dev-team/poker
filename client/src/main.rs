@@ -6,6 +6,7 @@ use bevy_framepace::{FramepacePlugin, Limiter, FramepaceSettings};
 use bevy_renet::*;
 use std::env;
 use bevy_renet::netcode::NetcodeClientPlugin;
+use crate::utils::lobby::Action;
 
 pub const GAME_NAME: &str = "Jack of Diamonds";
 
@@ -53,6 +54,7 @@ fn main() {
     .init_state::<ServerMode>()
     .init_resource::<GameAssets>()
     .init_resource::<Lobby>()
+    .add_event::<Action>()
     .add_plugins((TextInputPlugin, FramepacePlugin, RenetServerPlugin, RenetClientPlugin, NetcodeServerPlugin, NetcodeClientPlugin)) // External Plugins
     .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin, GameAnimationPlugin, ServerPlugin))// In-Crate Plugins
     .add_systems(Startup, setup)

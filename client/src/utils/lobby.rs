@@ -1,10 +1,12 @@
 use bevy::prelude::*;
-use crate::Deck;
+use crate::utils::{Deck, BytesCard};
+use renet::Bytes;
+use serde::{Serialize, Deserialize};
 
 // Implementation of a poker lobby
 
 // A lobby is a collection of players, a deck, and a turn
-#[derive(Debug, Clone, Copy, Component)]
+#[derive(Debug, Clone, Resource)]
 pub struct Lobby {
     pub players: Vec<Player>,
     pub turn: u8,
@@ -24,21 +26,16 @@ impl Lobby {
         }
     }
 
-    pub fn new_from_deck(deck: Deck) -> Self {
-        Lobby {
-            players: Vec::new(),
-            turn: 0,
-            deck,
-            pot: 0,
-            current_bet: 0,
-        }
+    pub fn add_deck(&mut self, deck: Deck) {
+        self.deck = deck;
+        
     }
 
     pub fn add_player(&mut self, player: Player) {
         self.players.push(player);
     }
     
-    pub fn remove_player_by_id(&mut self, id: u8) {
+    pub fn remove_player_by_id(&mut self, id: u64) {
         self.players.retain(|player| player.client_id != id);
     }
 
@@ -91,21 +88,21 @@ impl Lobby {
     }
 }
 
-enum ActionResult {
+pub enum ActionResult {
     Success,
     Error(String, ActionErrorCode),
 }
-enum ActionErrorCode {
+pub enum ActionErrorCode {
     NotEnoughMoney,
     MustCallCurrentBet,
     MustRaiseToCurrentBet,
 }
 
 // A player is a collection of a name, a hand, money, and a position
-#[derive(Debug, Clone, Copy, Component)]
+#[derive(Debug, Clone, Resource, Serialize, Deserialize)]
 pub struct Player {
     pub name: String,
-    pub hand: Vec<Card>,
+    pub hand: Vec<BytesCard>,
     pub money: i32,
     pub position: u8,
     pub is_all_in: bool,
@@ -131,7 +128,7 @@ impl Default for Player {
 }
 
 // an action is a collection of a type, a value, and a player
-#[derive(Debug, Clone, Copy, Event)]
+#[derive(Debug, Clone, Copy, Event, Serialize, Deserialize  )]
 pub enum Action {
     Check,
     Call,
@@ -147,7 +144,7 @@ impl From<Bytes> for Action {
 }
 impl Into<Bytes> for Action {
     fn into(self) -> Bytes {
-        bincode::serialize(&self).unwrap()
+        Bytes::copy_from_slice(&bincode::serialize(&self).unwrap())
     }
 }
 impl From<Bytes> for Player {
@@ -157,6 +154,12 @@ impl From<Bytes> for Player {
 }
 impl Into<Bytes> for Player {
     fn into(self) -> Bytes {
-        bincode::serialize(&self).unwrap()
+        Bytes::copy_from_slice(&bincode::serialize(&self).unwrap())
+    }
+}
+
+impl Default for Lobby {
+    fn default() -> Self {
+        Lobby::new()
     }
 }

@@ -7,7 +7,7 @@ mod server;
 
 mod client;
 
-mod lobby;
+pub mod lobby;
 pub use lobby::*;
 
 mod message;

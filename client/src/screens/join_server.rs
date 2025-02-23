@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use crate::GameState;
+use crate::GameAssets;
+use bevy_simple_text_input::*;
 
 pub struct JoinServerPlugin;
 
@@ -50,27 +53,27 @@ fn setup_join_server(
         parent.spawn((
             Node{
                 position_type: PositionType::Absolute,
-                top: Val::Px(button_height),
-                left: Val::Px(0.),
+                top: Val::Px(50.0),
+                left: Val::Px(0.0),
                 border: UiRect::all(Val::Px(5.0)),
                 padding: UiRect::all(Val::Px(5.0)),
                 width: Val::Px(200.0),
-                height: Val::Px(BUTTON_HEIGHT),
+                height: Val::Px(50.0),
                 ..Default::default()
             },
-            BorderColor(PLAY_BUTTON),
+            BorderColor(Color::WHITE.into()),
             BackgroundColor(Color::srgb(0.15, 0.15, 0.15).into()),
             TextInput,
             TextInputTextFont ( TextFont {
                 font: game_assets.font.clone(),
-                font_size: BUTTON_FONT_SIZE+5.0,
+                font_size: 20.0,
                 ..Default::default()
             }),
             TextInputPlaceholder{
                 value: "Username".to_string(),
                 text_font: Some(TextFont {
                     font: game_assets.font.clone(),
-                    font_size: BUTTON_FONT_SIZE-5.0,
+                    font_size: 20.0,
                     ..Default::default()
                 }),
                 text_color: Some(TextColor(Color::WHITE.into())),
@@ -85,7 +88,7 @@ fn input_grabber(
     text_input_query: Query<&TextInputValue, With<TextInput>>,
 ) {
     if let Ok(text_input) = text_input_query.get_single() {
-        game_assets.server_address = text_input.0.to_string();
+        game_assets.server_address = text_input.0.to_string().parse().unwrap();
     }
 }
 
@@ -95,7 +98,7 @@ fn input_listener(
     mut game_state: ResMut<NextState<GameState>>,
 ) {
     for event in events.read() {
-        game_assets.server_address = event.value.clone();
+        game_assets.server_address = event.value.clone().parse().unwrap();
         game_state.set(GameState::Lobby);
         println!("Server address: {}", game_assets.server_address);
     }

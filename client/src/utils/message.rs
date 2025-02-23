@@ -1,7 +1,9 @@
-
+use renet::Bytes;
+use serde::{Deserialize, Serialize};
 use crate::utils::lobby::*;
 
-enum ServerMessage {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ServerMessage {
     Player(Player),
     Action(Action, u64),
     StartGame,
@@ -15,6 +17,6 @@ impl From<Bytes> for ServerMessage {
 
 impl Into<Bytes> for ServerMessage {
     fn into(self) -> Bytes {
-        bincode::serialize(&self).unwrap()
+        Bytes::copy_from_slice(&bincode::serialize(&self).unwrap())
     }
 }

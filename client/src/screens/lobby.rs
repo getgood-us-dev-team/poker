@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+use crate::GameState;
+use crate::GameAssets;
 
 pub struct LobbyPlugin;
 

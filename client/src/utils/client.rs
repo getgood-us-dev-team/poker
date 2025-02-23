@@ -8,13 +8,15 @@ use crate::asset_loader::GameAssets;
 use rand::{thread_rng, Rng};
 use crate::utils::*;
 pub const PROTOCOL_ID: u64 = 12478;
+use crate::utils::*;
+use crate::GameState;
 
-pub fn create_client(mut commands: Commands, game_assets: Res<GameAssets>, mut lobby: ResMut<Lobby>) {
-    let client_id = rng.gen_range(0..u64::MAX);
+pub fn create_client(mut commands: Commands, mut game_assets: ResMut<GameAssets>, mut lobby: ResMut<Lobby>) {
+    let client_id = thread_rng().gen_range(0..u64::MAX);
     game_assets.client_id = client_id;
     let client_address = "127.0.0.1:0";
     println!("Creating client connected to server at address: {}, and making socket at address: {}", game_assets.server_address, client_address);
-    let client = RenetClient::new(ConnectionConfig::default());
+    let mut client = RenetClient::new(ConnectionConfig::default());
     commands.insert_resource(client);
     let mut rng = thread_rng();
     let authentication = ClientAuthentication::Unsecure {
@@ -28,27 +30,32 @@ pub fn create_client(mut commands: Commands, game_assets: Res<GameAssets>, mut l
     let mut transport = NetcodeClientTransport::new(current_time, authentication, socket).unwrap();
     println!("Transport created");
     commands.insert_resource(transport);
-    lobby = Lobby::new_from_deck(game_assets.deck);
+    lobby.add_deck(game_assets.deck.clone());
 
+   
+}
+
+pub fn send_player_message_system(mut client: ResMut<RenetClient>, mut lobby: ResMut<Lobby>, game_assets: Res<GameAssets>) {
     let player = Player{
         name: game_assets.player_name.clone(),
-        client_id: client_id,
+        client_id: game_assets.client_id,
         ..Default::default()
     };
 
-    lobby.add_player(player);
+    lobby.add_player(player.clone());
 
-    client.send_message(DefaultChannel::ReliableOrdered, player.into());
+    client.send_message(DefaultChannel::ReliableOrdered, Into::<Bytes>::into(ServerMessage::Player(player)));
+
 }
 
-pub fn send_message_system(mut client: ResMut<RenetClient>, lobby: Res<Lobby>, events: EventReader<Action>) {
+pub fn send_message_system(mut client: ResMut<RenetClient>, mut lobby: ResMut<Lobby>, mut events: EventReader<Action>, game_assets: Res<GameAssets>) {
     for action in events.read() {
-        match lobby.play_turn(action) {
+        match lobby.play_turn(*action) {
             ActionResult::Error(error, error_code) => {
                 println!("Error: {:?}", error);
             }
             ActionResult::Success => {
-                client.send_message(DefaultChannel::ReliableOrdered, ServerMessage::Action(action).into());
+                client.send_message(DefaultChannel::ReliableOrdered, Into::<Bytes>::into(ServerMessage::Action(*action, game_assets.client_id)));
             }
         }
     }
@@ -58,7 +65,8 @@ pub fn receive_message_system(
     mut client: ResMut<RenetClient>,
     mut lobby: ResMut<Lobby>,
     mut events: EventWriter<Action>,
-    mut game_state: ResMut<GameState>
+    mut game_state: ResMut<NextState<GameState>>,
+    game_assets: Res<GameAssets>,
 ) {
     while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered) {
         // message could be a player or an action
