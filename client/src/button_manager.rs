@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use crate::CardServer;
 use crate::GameState;
 use bevy_framepace::FramepaceSettings;
 use std::sync::Arc;
@@ -18,7 +17,7 @@ pub enum ButtonAction {
     ChangeState(Arc<dyn Fn(&mut ResMut<NextState<GameState>>) + Send + Sync>),
     ChangeWindow(Arc<dyn Fn(&mut Query<&mut Window>) + Send + Sync>),
     ChangeFPS(Arc<dyn Fn(&mut ResMut<FramepaceSettings>) + Send + Sync>),
-    CreateRequest(Arc<dyn Fn(&mut ResMut<CardServer>) + Send + Sync>),
+    //CreateRequest(Arc<dyn Fn(&mut ResMut<CardServer>) + Send + Sync>),
     Other(Arc<dyn Fn() + Send + Sync>),
 }
 
@@ -28,13 +27,13 @@ impl ButtonAction {
         game_state: &mut ResMut<NextState<GameState>>,
         window_query: &mut Query<&mut Window>,
         framespace_settings: &mut ResMut<FramepaceSettings>,
-        card_server: &mut ResMut<CardServer>,
+       // card_server: &mut ResMut<CardServer>,
     ) {
         match self {
             ButtonAction::ChangeState(f) => f(game_state),
             ButtonAction::ChangeWindow(f) => f(window_query),
             ButtonAction::ChangeFPS(f) => f(framespace_settings),
-            ButtonAction::CreateRequest(f) => f(card_server),
+            //ButtonAction::CreateRequest(f) => f(card_server),
             ButtonAction::Other(f) => f(),
         }
     }
@@ -108,7 +107,7 @@ pub fn spawn_button(
 fn update_buttons(
     mut game_state: ResMut<NextState<GameState>>,
     mut framespace_settings: ResMut<FramepaceSettings>,
-    mut card_server: ResMut<CardServer>,
+    //mut card_server: ResMut<CardServer>,
     mut window_query: Query<&mut Window>,
     mut interaction_query: Query<(
         &Interaction,
@@ -122,7 +121,7 @@ fn update_buttons(
             Interaction::Pressed => {
                 *background_color = BackgroundColor(button_assets.pressed);
                 *border_color = BorderColor(button_assets.pressed);
-                button_assets.on_click.execute(&mut game_state, &mut window_query, &mut framespace_settings, &mut card_server);
+                button_assets.on_click.execute(&mut game_state, &mut window_query, &mut framespace_settings);
             }
             Interaction::Hovered => {
                 *background_color = BackgroundColor(button_assets.hovered);

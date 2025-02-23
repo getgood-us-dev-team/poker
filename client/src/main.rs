@@ -58,9 +58,6 @@ fn main() {
 fn setup(mut commands: Commands, mut framespace_settings: ResMut<FramepaceSettings>,) {
     // Spawns the camera
     commands.spawn((Camera3d::default(), Transform::from_xyz(0.0, 0.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y)));
-    
-    // Spawns the card server
-    commands.insert_resource(CardServer::new_empty());
 
     // Sets the framepace limiter to 60 fps
     framespace_settings.limiter = Limiter::from_framerate(60.0);
