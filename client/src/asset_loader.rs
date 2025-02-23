@@ -14,6 +14,7 @@ impl Plugin for AssetLoaderPlugin {
 pub struct GameAssets {
     pub font: Handle<Font>,
     pub deck: Deck,
+    pub player_name: String,
 
 }
 
@@ -22,6 +23,7 @@ impl Default for GameAssets {
         Self {
             font: Handle::default(),
             deck: Deck::new_empty(),
+            player_name: String::new(),
         }
     }
 }
