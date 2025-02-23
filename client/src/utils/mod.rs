@@ -10,6 +10,9 @@ mod client;
 mod lobby;
 pub use lobby::*;
 
+mod message;
+pub use message::*;
+
 pub struct ServerPlugin;
 
 impl Plugin for ServerPlugin {

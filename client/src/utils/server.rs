@@ -30,21 +30,30 @@ pub fn create_server(
     commands.insert_resource(transport);
 }
 
-pub fn send_message_system(mut server: ResMut<RenetServer>) {
-    //println!("Sending message");
-    let channel_id = 0;
-    // Send a text message for all clients
-    // The enum DefaultChannel describe the channels used by the default configuration
-    server.broadcast_message(DefaultChannel::ReliableOrdered, "server message");
+pub fn send_message_system(mut server: ResMut<RenetServer>, mut lobby: ResMut<Lobby>, mut events: EventReader<Action>) {
+    if lobby.is_client_turn(game_assets.client_id) {
+        for action in events.read() {
+            server.broadcast_message(DefaultChannel::ReliableOrdered, ServerMessage::Action(action, game_assets.client_id).into());
+        }
+    }
 }
 
-pub fn receive_message_system(mut server: ResMut<RenetServer>) {
-    //println!("Receiving message");
-    // Receive message from all clients
+pub fn receive_message_system(mut server: ResMut<RenetServer>, mut lobby: ResMut<Lobby>) {
     for client_id in server.clients_id() {
-        while let Some(message) = server.receive_message(client_id, DefaultChannel::ReliableOrdered) {
-            // Handle received message
-            println!("Received message from client {client_id}: {:?}", message);
+        if lobby.is_client_turn(client_id) {
+            while let Some(message) = server.receive_message(client_id, DefaultChannel::ReliableOrdered) {
+                let client_message = ServerMessage::from(message);
+                match client_message {
+                    ServerMessage::Action(action) => {
+                        lobby.play_turn(action);
+                    }
+                    _ => {
+                        println!("Unknown message from client {client_id}: {:?}", message);
+                        break;
+                    }
+                }
+                server.broadcast_message(DefaultChannel::ReliableOrdered, message);
+            }
         }
     }
 }

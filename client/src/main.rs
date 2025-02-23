@@ -52,6 +52,7 @@ fn main() {
     .init_state::<GameState>()
     .init_state::<ServerMode>()
     .init_resource::<GameAssets>()
+    .init_resource::<Lobby>()
     .add_plugins((TextInputPlugin, FramepacePlugin, RenetServerPlugin, RenetClientPlugin, NetcodeServerPlugin, NetcodeClientPlugin)) // External Plugins
     .add_plugins((AssetLoaderPlugin, ScreenPlugin, ButtonManagerPlugin, GameAnimationPlugin, ServerPlugin))// In-Crate Plugins
     .add_systems(Startup, setup)

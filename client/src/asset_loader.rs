@@ -17,6 +17,7 @@ pub struct GameAssets {
     pub deck: Deck,
     pub player_name: String,
     pub server_address: SocketAddr,
+    pub client_id: u64,
 }
 
 impl Default for GameAssets {
@@ -26,6 +27,7 @@ impl Default for GameAssets {
             deck: Deck::new_empty(),
             player_name: String::new(),
             server_address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2163),
+            client_id: 0,
         }
     }
 }
