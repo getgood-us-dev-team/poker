@@ -1,3 +1,5 @@
 fn main() {
-    println!("Hello, world!");
+    for i in 0..24 {
+        println!("Let it snow, let it snow, let it snow");
+    }
 }
